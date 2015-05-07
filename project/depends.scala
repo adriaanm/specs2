@@ -17,6 +17,8 @@ object depends {
       (if (scalazVersion.startsWith("7.1")) Seq("org.scalaz.stream" %% "scalaz-stream" % "0.7a")
        else                                 Seq("org.scalaz.stream" %% "scalaz-stream" % "0.7"))
 
+  lazy val kindp = Seq("org.spire-math" % "kind-projector" % "0.5.4" cross CrossVersion.binary)
+
   lazy val scalacheck    = Seq("org.scalacheck" %% "scalacheck"   % "1.12.2")
   lazy val mockito       = Seq("org.mockito"    % "mockito-core"  % "1.9.5")
   lazy val junit         = Seq("junit"          % "junit"         % "4.12")
@@ -44,7 +46,8 @@ object depends {
         Resolver.sonatypeRepo("releases"),
         Resolver.sonatypeRepo("snapshots"),
         Resolver.typesafeIvyRepo("releases"),
-        "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases")
+        "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
+        "non-bintray" at "http://dl.bintray.com/non/maven")
     }
 
 }
