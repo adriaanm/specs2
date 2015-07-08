@@ -7,6 +7,8 @@ object depends {
 
   lazy val classycle = Seq("org.specs2" % "classycle" % "1.4.3")
 
+  def isScalaPost210(scalaVersion: String) = !scalaVersion.startsWith("2.10.") // we don't even consider anything older than 2.10
+
   def compiler(scalaVersion: String) = Seq("org.scala-lang" % "scala-compiler" % scalaVersion)
 
   def reflect(scalaVersion: String) = Seq("org.scala-lang" % "scala-reflect" % scalaVersion)
@@ -23,8 +25,8 @@ object depends {
   lazy val hamcrest      = Seq("org.hamcrest"   % "hamcrest-core" % "1.3")
 
   def shapeless(scalaVersion: String) =
-    if (scalaVersion.contains("2.11")) Seq("com.chuusai" %% "shapeless" % "2.1.0")
-    else                               Seq("com.chuusai" % ("shapeless_"+scalaVersion) % "2.1.0")
+    if (isScalaPost210(scalaVersion)) Seq("com.chuusai" %% "shapeless" % "2.1.0")
+    else                              Seq("com.chuusai" % ("shapeless_"+scalaVersion) % "2.1.0")
 
   lazy val pegdown = Seq("org.pegdown" % "pegdown" % "1.2.1")
 
@@ -33,9 +35,9 @@ object depends {
   lazy val tagsoup = "org.ccil.cowan.tagsoup" % "tagsoup" % "1.2"
 
   def paradise(scalaVersion: String) =
-    if (scalaVersion.startsWith("2.11")) Nil
-    else  Seq(compilerPlugin("org.scalamacros" %% "paradise"    % "2.0.1" cross CrossVersion.full),
-                             "org.scalamacros" %% "quasiquotes" % "2.0.1")
+    if (isScalaPost210(scalaVersion)) Nil
+    else Seq(compilerPlugin("org.scalamacros" %% "paradise"    % "2.0.1" cross CrossVersion.full),
+                            "org.scalamacros" %% "quasiquotes" % "2.0.1")
 
   lazy val resolvers =
     Seq(updateOptions := updateOptions.value.withCachedResolution(true)) ++ {
