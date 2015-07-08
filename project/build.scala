@@ -183,7 +183,7 @@ object build extends Build {
     maxErrors := 20,
     incOptions := incOptions.value.withNameHashing(true),
     scalacOptions in GlobalScope ++=
-      (if (isScalaPost210(scalaVersion.value)) Seq("-Xfatal-warnings", "-Xlint", "-Ywarn-unused-import", "-Xcheckinit", "-Xlint", "-deprecation", "-unchecked", "-feature", "-language:_")
+      (if (isScalaPost210(scalaVersion.value)) Seq("-Xlint", "-Ywarn-unused-import", "-Xcheckinit", "-Xlint", "-deprecation", "-unchecked", "-feature", "-language:_") // TODO: dropped "-Xfatal-warnings" for community build (just to avoid errors due to deprecation etc)
        else                              Seq("-Xcheckinit", "-Xlint", "-deprecation", "-unchecked", "-feature", "-language:_")),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     scalacOptions in (Compile, console) ++= Seq("-Yrangepos", "-feature", "-language:_"),
