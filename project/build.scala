@@ -34,7 +34,7 @@ object build extends Build {
       compatibilitySettings    ++
       releaseSettings          ++
       siteSettings             ++
-      Seq(name := "specs2", packagedArtifacts := Map.empty)
+      Seq(name := "specs2")
   ).aggregate(common, matcher, matcherExtra, core, html, analysis, form, markdown, junit, scalacheck, mock, tests)
    .enablePlugins(GitBranchPrompt)
   
