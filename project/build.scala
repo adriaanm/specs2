@@ -44,7 +44,7 @@ object build extends Build {
       rootSettings             ++
       compatibilitySettings    ++
       Seq(name := "specs2")
-  ).aggregate(common, matcher, matcherExtra, core, html, analysis, form, markdown, gwt, junit, scalacheck, mock, tests)
+  ).aggregate(common, matcher, matcherExtra, core, html, analysis, form, markdown, junit, scalacheck, mock, tests)
   
   /** COMMON SETTINGS */
   lazy val specs2Settings: Seq[Settings] = Seq(
@@ -61,11 +61,11 @@ object build extends Build {
                                                "org.scalamacros" %% "quasiquotes" % "2.0.0")
 
   lazy val aggregateCompile = ScopeFilter(
-             inProjects(common, matcher, matcherExtra, core, html, analysis, form, markdown, gwt, junit, scalacheck, mock),
+             inProjects(common, matcher, matcherExtra, core, html, analysis, form, markdown, junit, scalacheck, mock),
              inConfigurations(Compile))
 
   lazy val aggregateTest = ScopeFilter(
-             inProjects(common, matcher, matcherExtra, core, html, analysis, form, markdown, gwt, junit, scalacheck, mock, guide, examples),
+             inProjects(common, matcher, matcherExtra, core, html, analysis, form, markdown, junit, scalacheck, mock, guide, examples),
              inConfigurations(Test))
 
   lazy val resolversSettings = resolvers ++= 
@@ -140,7 +140,7 @@ object build extends Build {
   lazy val examples = Project(id = "examples", base = file("examples"),
     settings = moduleSettings ++
       Seq(name := "specs2-examples")
-  ).dependsOn(common, matcher, matcherExtra, core, analysis, form, html, markdown, gwt, junit, scalacheck, mock)
+  ).dependsOn(common, matcher, matcherExtra, core, analysis, form, html, markdown, junit, scalacheck, mock)
 
   lazy val form = Project(id = "form", base = file("form"),
     settings = moduleSettings ++
@@ -151,16 +151,6 @@ object build extends Build {
     settings = moduleSettings ++
       Seq(name := "specs2-guide")
   ).dependsOn(examples % "compile->compile;test->test")
-
-  lazy val gwt = Project(id = "gwt", base = file("gwt"),
-    settings = Seq(
-      libraryDependencies <+= (scalaVersion) { sv =>
-        if (isScalaPost210(sv)) "com.chuusai" %% "shapeless" % "2.0.0"
-        else                     "com.chuusai" % "shapeless_2.10.4" % "2.0.0"
-      }
-    ) ++ moduleSettings ++
-      Seq(name := "specs2-gwt")
-  ).dependsOn(core, matcherExtra, scalacheck)
 
   lazy val html = Project(id = "html", base = file("html"),
     settings = moduleSettings ++
