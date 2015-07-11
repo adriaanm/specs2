@@ -29,6 +29,8 @@ import ScoverageKeys._
 object build extends Build {
   type Settings = Def.Setting[_]
 
+  def isScalaPost210(scalaVersion: String) = !scalaVersion.startsWith("2.10.") // we don't even consider anything older than 2.10
+
   lazy val SCALAZ_VERSION = "7.1.0"
 
   /** MAIN PROJECT */
@@ -153,7 +155,7 @@ object build extends Build {
   lazy val gwt = Project(id = "gwt", base = file("gwt"),
     settings = Seq(
       libraryDependencies <+= (scalaVersion) { sv =>
-        if (sv.contains("2.11")) "com.chuusai" %% "shapeless" % "2.0.0"
+        if (isScalaPost210(sv)) "com.chuusai" %% "shapeless" % "2.0.0"
         else                     "com.chuusai" % "shapeless_2.10.4" % "2.0.0"
       }
     ) ++ moduleSettings ++
@@ -191,7 +193,7 @@ object build extends Build {
       libraryDependencies ++=
         (if (scalazVersion.value == "7.1.0") Seq("org.scalaz.stream" %% "scalaz-stream" % "0.5a")
          else                                Seq("org.scalaz.stream" %% "scalaz-stream" % "0.5")) ++
-        (if (scalaVersion.value.startsWith("2.11")) Nil else paradisePlugin)
+        (if (isScalaPost210(scalaVersion.value)) Nil else paradisePlugin)
     )
   ).dependsOn(analysis, matcher, core % "test->test")
 
