@@ -3,7 +3,6 @@ package execute
 
 import reflect.Macros
 import reflect.MacroContext._
-import Macros._
 import scala.reflect.macros.{ParseException, TypecheckException}
 
 /**
@@ -42,6 +41,7 @@ object Typecheck {
         val ps = try {
           c.eval(c.Expr(c.untypecheck(params.tree))).asInstanceOf[TypecheckParams]
         } catch { case e: Exception => c.abort(c.enclosingPosition, "typecheck parameters must be passed directly to the typecheck macro") }
+
         try {
           // parse without macros first
           val parsed = try {

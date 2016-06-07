@@ -7,7 +7,7 @@ import text.Regexes._
 import text.Plural._
 import text.NotNullStrings._
 import collection.Seqx._
-import scala.collection.{GenSeq, GenTraversableOnce, GenTraversable}
+import scala.collection.{GenTraversableOnce}
 import execute._
 import control.Times
 import execute.Failure
@@ -136,10 +136,6 @@ trait TraversableBaseMatchersLowImplicits extends ValueChecksLowImplicits { this
 
   implicit def matcherSeqIsContainCheckSeq[T](seq: Seq[Matcher[T]]): Seq[ValueCheck[T]] =
     seq.map(matcherIsValueCheck[T])
-
-  /** this allows the contain(string) matcher for StringMatchers to be used with a Traversable */
-  implicit def stringMatcherIsTraversableMatcher(m: Matcher[String]): Matcher[GenTraversableOnce[String]] =
-    contain(matcherIsValueCheck(m))
 
 }
 

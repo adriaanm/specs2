@@ -1,7 +1,7 @@
 package org.specs2
 package mock
 
-import org.hamcrest.{BaseMatcher, Description, TypeSafeMatcher}
+import org.hamcrest.{BaseMatcher, Description}
 import matcher._
 
 /** 
@@ -31,6 +31,7 @@ case class HamcrestMatcherAdapter[T](m: Matcher[T]) extends BaseMatcher {
 
   def describeTo(description: Description) {
     description.appendText(message)
+    ()
   }
 }
 

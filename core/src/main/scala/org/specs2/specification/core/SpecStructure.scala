@@ -8,7 +8,6 @@ import org.specs2.data.TopologicalSort
 import scalaz.concurrent.Task
 import scalaz.stream._
 import control._
-import scalaz.std.anyVal._
 import scalaz.syntax.traverse._
 import scalaz.std.list._
 
@@ -72,15 +71,15 @@ object SpecStructure {
   /**
    * sort the specifications in topological order where specification i doesn't depend on specification j if i > j
    *
-   * == dependents first!
+   * means "dependents first"!
    */
   def topologicalSort(specifications: Seq[SpecStructure]): Option[Vector[SpecStructure]] =
     TopologicalSort.sort(specifications, (s1: SpecStructure, s2: SpecStructure) => dependsOn(s2, s1))
 
   /**
-   * sort the specifications in topological order where specification i doesn't depend on specification j if i ><j
+   * sort the specifications in topological order where specification i doesn't depend on specification j if i > j
    *
-   * == dependents last!
+   * means "dependents last"!
    */
   def reverseTopologicalSort(specifications: Seq[SpecStructure]): Option[Vector[SpecStructure]] =
     TopologicalSort.sort(specifications, dependsOn)

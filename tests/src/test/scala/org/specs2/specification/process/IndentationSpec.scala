@@ -3,16 +3,11 @@ package specification
 package process
 
 import core._
-import data._
-import org.scalacheck.util.{FreqMap, Pretty}
-import org.scalacheck.{Shrink, Arbitrary}
-import org.specs2.execute.AsResult
-import org.specs2.scalacheck.Parameters
+import foldm._, stream._, FoldProcessM._, FoldableProcessM._
 import scalaz._, Scalaz._
-import control._
+import scalaz.concurrent.Task
 import matcher._
 import Arbitraries._
-import Functions._
 import Fragment._
 
 class IndentationSpec extends Specification with ScalaCheck with TaskMatchers { def is = s2"""
@@ -44,5 +39,5 @@ class IndentationSpec extends Specification with ScalaCheck with TaskMatchers { 
   implicit val prettyFragments = Pretties.prettyFragments
 
   def indentation(fs: Fragments) =
-    Fold.runFoldLast(fs.contents, Fold.fromState(Indentation.fold)(0))
+    Indentation.fold.into[Task].run[ProcessTask](fs.contents)
 }

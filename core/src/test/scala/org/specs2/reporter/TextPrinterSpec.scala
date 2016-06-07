@@ -1,14 +1,14 @@
 package org.specs2
 package reporter
 
-import matcher.{StandardMatchResults, MustMatchers}
+import matcher.{MustMatchers}
 import specification._
-import dsl.{AcceptanceDsl, FragmentsDsl}
-import specification.create.{S2StringContext, DefaultFragmentFactory}
+import dsl.{FragmentsDsl}
+import specification.create.{DefaultFragmentFactory}
 import control._
 import text.Trim._
 import execute._
-import org.specs2.main.{ArgumentsShortcuts, Arguments}
+import org.specs2.main.{Arguments}
 import LineLogger._
 import core._
 import process.{Stats, DefaultExecutor, StatisticsRepository}
@@ -40,8 +40,10 @@ class TextPrinterSpec extends Specification { def is = s2"""
    with detailed failure                                      $d3
 
  Error messages must be shown
-   with the exception message                                 $e1
-   with the stacktrace                                        $e2
+   with the exception class                                   $e1
+   with the exception message                                 $e2
+   with the stacktrace                                        $e3
+   with the cause                                             $e4
 
  Expected values must be shown
    when they are non empty                                    $f1
@@ -150,9 +152,16 @@ s2"""e1 ${"abcdeabcdeabcdeabcdeabcde" must_== "adcdeadcdeadcdeadcdeadcde"}""" co
   def e1 = Arguments("fullstacktrace") ^
     s2"""e1 $error1""" contains
       """|[error] ! e1
-         |[error]  boom"""
+         |[error]  java.lang.RuntimeException: boom"""
 
-  def e2 = s2"""e1 $error1""" contains """|[error] org.specs2.report"""
+  def e2 = Arguments("fullstacktrace") ^
+    s2"""e1 $error1""" contains
+    """|[error] ! e1
+       |[error]  java.lang.RuntimeException: boom"""
+
+  def e3 = s2"""e1 $error1""" contains """|[error] org.specs2.report"""
+
+  def e4 = s2"""e1 $error2""" contains """|[error] CAUSED BY"""
 
   def f1 = s2"""e1 ${Success("ok", "expected")}""" contains
     """|[info] + e1
@@ -214,7 +223,7 @@ s2"""e1 ${"abcdeabcdeabcdeabcdeabcde" must_== "adcdeadcdeadcdeadcdeadcde"}""" co
 
     val fragments = Fragments((1 to 100).flatMap(i => Seq(
       "ex"+i+"\n " ! {
-        Thread.sleep(scala.util.Random.nextInt(100))
+        Thread.sleep(scala.util.Random.nextInt(100).toLong)
         logger.infoLine("executed "+i)
         ok
       })):_*)
@@ -243,7 +252,7 @@ s2"""e1 ${"abcdeabcdeabcdeabcdeabcde" must_== "adcdeadcdeadcdeadcdeadcde"}""" co
 
     val fragments = Fragments((1 to 100).flatMap(i => Seq(
       "ex"+i+"\n " ! {
-        Thread.sleep(scala.util.Random.nextInt(100))
+        Thread.sleep(scala.util.Random.nextInt(100).toLong)
         logger.infoLine("executed "+i)
         ok
       })):_*)
@@ -287,6 +296,7 @@ table ${
    * TEST METHODS
    */
   def error1 = { sys.error("boom"); ok }
+  def error2 = { throw new Exception("wrong", new IllegalArgumentException("boom")); ok }
 }
 
 object TextPrinterSpecification extends MustMatchers with FragmentsDsl {

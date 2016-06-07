@@ -3,11 +3,9 @@ package reporter
 
 import io._
 import main.Arguments
-import org.specs2.specification.BeforeAll
 import org.specs2.specification.core.{SpecificationStructure, Env}
 import matcher._
 import control._
-import execute._
 import scalaz._,Scalaz._
 
 class HtmlPrinterSpec extends Specification with TaskMatchers with ThrownExpectations { def is = sequential ^ s2"""

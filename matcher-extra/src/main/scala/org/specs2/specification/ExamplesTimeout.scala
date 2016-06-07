@@ -5,8 +5,6 @@ import execute._
 import matcher._
 import org.specs2.concurrent.ExecutionEnv
 import specification.core._
-import time._
-
 import scala.concurrent.duration._
 import TerminationMatchers._
 
@@ -16,7 +14,7 @@ import TerminationMatchers._
  *  - for each example mix-in the trait
  *  - for a single example import the object and use the upTo context:
  *
- *   my example must terminate in a reasonable amount of time ${upTo(3.seconds)(e1)}
+ *   my example must terminate in a reasonable amount of time \${upTo(3.seconds)(e1)}
  */
 trait ExamplesTimeout extends EachContext with AroundTimeout {
 

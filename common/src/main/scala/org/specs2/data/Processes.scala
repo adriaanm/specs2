@@ -3,9 +3,10 @@ package data
 
 import java.util.concurrent.ExecutorService
 
+import scalaz.stream.Cause.EarlyCause
 import scalaz.stream._
 import Process._
-import scalaz.\/._
+import scalaz.{OptionT, Scalaz, \/}, Scalaz._, \/._
 import scalaz.concurrent.{Future, Task}
 import Task._
 import scalaz.Nondeterminism
@@ -52,16 +53,6 @@ trait Processes {
       ps.pipe(process1.chunk(nb)).map(Nondeterminism[Task].gather).eval.flatMap(emitAll)
   }
 
-  implicit class SinkOps[T, F[_]](sink: Sink[F, T]) {
-    /**
-     * Transform a simple sink into a sink, where the written value doesn't depend on the
-     * current state to a sink for folds, where the current state is passed all the time
-     * (and actually ignored here)
-     */
-    def extend[S]: Sink[F, (T, S)] =
-      sink.map(f => (ts: (T, S)) => f(ts._1))
-  }
-
   /**
    * Accumulate state on a Process[Task, T] using an accumulation action and
    * an initial state
@@ -91,6 +82,34 @@ trait Processes {
     go(init)
   }
 
+  /** create a Stepper for a given Process[F, A] */
+  def step[A](p: Process[Task, A]): Stepper[Task, A] = new Stepper[Task, A] {
+    var state = p
+
+    def next: OptionT[Task, Seq[A]] = state.step match {
+
+      case Halt(_) => OptionT.none
+
+      case Step(Emit(as: Seq[A]), cont) =>
+        state = cont.continue
+        OptionT(as.point[Task] map some)
+
+      // what should be done with the preempt parameter in scalaz-stream 0.8?
+      case Step(Await(req: Task[_], rcv, preempt), cont) =>
+        for {
+          tail <- (req.attempt map { r => rcv(EarlyCause fromTaskResult r).run +: cont }).liftM[OptionT]
+          _ = state = tail          // purity ftw!
+          back <- next
+        } yield back
+    }
+
+    def close =
+      Task.suspend {
+        Task.delay(state = state.kill) >>
+        state.run
+      }
+  }
+
   /** start an execution right away */
   def start[A](a: =>A)(executorService: ExecutorService) =
     new Task(Future(Task.Try(a))(executorService).start)
@@ -100,3 +119,9 @@ trait Processes {
 }
 
 object Processes extends Processes
+
+/** Helper trait to step through a Process[F, A] */
+trait Stepper[F[_], A] {
+  def next: OptionT[F, Seq[A]]
+  def close: F[Unit]
+}

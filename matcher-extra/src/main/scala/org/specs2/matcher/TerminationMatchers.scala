@@ -1,7 +1,6 @@
 package org.specs2
 package matcher
 
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.atomic.AtomicBoolean
 import org.specs2.concurrent.ExecutionEnv
 
@@ -32,7 +31,7 @@ trait TerminationBaseMatchers {
 class TerminationMatcher[-T](retries: Int, sleep: Duration, whenAction: Option[() => Any] = None, whenDesc: Option[String] = None, onlyWhen: Boolean = false)(implicit ee: ExecutionEnv) extends Matcher[T] {
 
   def apply[S <: T](a: Expectable[S]) =
-    retry(retries, retries, sleep * ee.timeFactor, a, createFuture(a.value))
+    retry(retries, retries, sleep * ee.timeFactor.toDouble, a, createFuture(a.value))
 
   @tailrec
   private final def retry[S <: T](originalRetries: Int, retries: Int, sleep: Duration, a: Expectable[S], future: Future[S], whenActionExecuted: Boolean = false): MatchResult[S] = {

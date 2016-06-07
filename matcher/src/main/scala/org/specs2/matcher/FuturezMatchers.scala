@@ -6,7 +6,7 @@ import execute._
 import org.specs2.concurrent.ExecutionEnv
 import scala.concurrent.duration._
 import scala.concurrent.{Future =>_,_}
-import scalaz.concurrent.{Strategy, Future}
+import scalaz.concurrent.{Future}
 
 /**
  * This trait is for transforming matchers of values to matchers of scalaz.concurrent.Future
@@ -46,7 +46,7 @@ trait FuturezBaseMatchers extends ExpectationsCreation {
 
     def attempt(retries: Int, timeout: FiniteDuration): Result = {
       val tf = ee.timeFactor
-      val appliedTimeout = timeout * tf
+      val appliedTimeout = timeout * tf.toLong
 
       def attemptFuture(remainingRetries: Int, totalDuration: FiniteDuration): Result = {
         implicit val ses = ee.scheduledExecutorService

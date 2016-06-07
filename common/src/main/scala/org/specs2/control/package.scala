@@ -1,10 +1,6 @@
 package org.specs2
 
-import org.specs2.control.ActionT
-
-import scalaz.{WriterT, Monoid}
-import scalaz.{Monad, Monoid}
-import scalaz.std.anyVal._
+import scalaz._
 import scalaz.effect._
 import org.specs2.execute.{AsResult, Result}
 import scalaz.concurrent.Task
@@ -12,7 +8,6 @@ import scalaz.stream.Process
 import scalaz.syntax.bind._
 
 package object control {
-  import StatusT._
 
   /**
    * Actions logging

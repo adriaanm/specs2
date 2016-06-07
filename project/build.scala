@@ -29,7 +29,7 @@ object build extends Build {
   lazy val specs2 = Project(
     id = "specs2",
     base = file("."),
-    settings = 
+    settings =
       moduleSettings("")       ++
       compatibilitySettings    ++
       releaseSettings          ++
@@ -37,15 +37,15 @@ object build extends Build {
       Seq(name := "specs2")
   ).aggregate(common, matcher, matcherExtra, core, html, analysis, form, markdown, junit, scalacheck, mock, tests)
    .enablePlugins(GitBranchPrompt)
-  
+
   /** COMMON SETTINGS */
   lazy val specs2Settings: Seq[Settings] = Seq(
     organization := "org.specs2",
     specs2Version in GlobalScope <<= version,
     specs2ShellPrompt,
-    scalaVersion := "2.11.6",
-    scalazVersion := "7.1.2",
-    crossScalaVersions := Seq(scalaVersion.value, "2.10.5"))
+    scalaVersion := "2.11.7",
+    scalazVersion := "7.1.4",
+    crossScalaVersions := Seq(scalaVersion.value, "2.12.0-M3", "2.10.5"))
 
   lazy val specs2Version = settingKey[String]("defines the current specs2 version")
 
@@ -70,9 +70,10 @@ object build extends Build {
     settings = moduleSettings("common") ++
       Seq(conflictWarning ~= { _.copy(failOnConflict = false) }, // lame
           libraryDependencies ++=
-            depends.scalaz(scalazVersion.value) ++
+            depends.scalaz(scalazVersion.value, scalaVersion.value) ++
             depends.reflect(scalaVersion.value) ++
             depends.paradise(scalaVersion.value) ++
+            depends.kindp ++
             depends.scalacheck.map(_ % "test"),
           name := "specs2-common")
   )
@@ -185,18 +186,26 @@ object build extends Build {
     maxErrors := 20,
     incOptions := incOptions.value.withNameHashing(true),
     scalacOptions in GlobalScope ++=
-      (if (isScalaPost210(scalaVersion.value)) Seq("-Xlint", "-Ywarn-unused-import", "-Xcheckinit", "-Xlint", "-deprecation", "-unchecked", "-feature", "-language:_") // TODO: dropped "-Xfatal-warnings" for community build (just to avoid errors due to deprecation etc)
-       else                              Seq("-Xcheckinit", "-Xlint", "-deprecation", "-unchecked", "-feature", "-language:_")),
+      (if (scalaVersion.value.startsWith("2.11") || scalaVersion.value.startsWith("2.12"))
+        Seq(//"-Xfatal-warnings",
+            "-Xlint",
+            "-Ywarn-unused-import",
+            "-Yno-adapted-args",
+            "-Ywarn-numeric-widen",
+            "-Ywarn-value-discard",
+            "-deprecation:false", "-Xcheckinit", "-unchecked", "-feature", "-language:_")
+       else
+        Seq("-Xcheckinit", "-Xlint", "-deprecation", "-unchecked", "-feature", "-language:_")),
     scalacOptions in Test ++= Seq("-Yrangepos"),
-    scalacOptions in (Compile, console) ++= Seq("-Yrangepos", "-feature", "-language:_"),
-    scalacOptions in (Test, console) ++= Seq("-Yrangepos", "-feature", "-language:_")
+    scalacOptions in (Compile, console) := Seq("-Yrangepos", "-feature", "-language:_"),
+    scalacOptions in (Test, console) := Seq("-Yrangepos", "-feature", "-language:_")
   )
-
 
   lazy val testingSettings: Seq[Settings] = Seq(
     initialCommands in console in test := "import org.specs2._",
     logBuffered := false,
-    cancelable := true,
+    cancelable in Global := true,
+    testFrameworks := Seq(TestFramework("org.specs2.runner.Specs2Framework")),
     javaOptions ++= Seq("-Xmx3G", "-Xss4M"),
     fork in test := true,
     testOptions := Seq(Tests.Filter(s =>

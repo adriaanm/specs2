@@ -146,7 +146,7 @@ trait GWT extends StepParsers with Scripts { outer: FragmentsFactory =>
      */
     def fragments(text: String): Fragments = {
 
-      /** results of given and when steps, stored in the reverse order of definition */
+      // results of given and when steps, stored in the reverse order of definition
       var givenSteps: Seq[Fragment] = Seq()
       var whenSteps: Seq[Fragment]  = Seq()
 
@@ -262,7 +262,7 @@ trait GWT extends StepParsers with Scripts { outer: FragmentsFactory =>
     def append[LLub](list: H, b: mutable.Builder[LLub, List[LLub]], f: Lub => LLub): Unit = {
       def add[T <: HList](list: T): Unit =
         list match {
-          case head :: HNil => b.+=(f(head))
+          case head :: HNil => b.+=(f(head)); ()
           case head :: tail => b.+=(f(head)); add(tail)
           case _            => ()
         }

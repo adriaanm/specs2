@@ -6,7 +6,6 @@ import data.TopologicalSort
 import control._
 import reflect.Classes
 import Classes._
-import scalaz.std.anyVal._
 import scalaz.syntax.traverse._
 import scalaz.std.list._
 
@@ -41,7 +40,7 @@ object SpecificationStructure {
   /**
    * sort the specifications in topological order where specification i doesn't depend on specification j if i > j
    *
-   * == dependents first!
+   * means "dependents first"!
    */
   def topologicalSort(env: Env) = (specifications: Seq[SpecificationStructure]) =>
     TopologicalSort.sort(specifications, (s1: SpecificationStructure, s2: SpecificationStructure) =>
@@ -50,7 +49,7 @@ object SpecificationStructure {
   /**
    * sort the specifications in topological order where specification i doesn't depend on specification j if i < j
    *
-   *  == dependents last!
+   *  means "dependents last"!
    */
   def reverseTopologicalSort(env: Env) = (specifications: Seq[SpecificationStructure]) =>
     TopologicalSort.sort(specifications, (s1: SpecificationStructure, s2: SpecificationStructure) =>

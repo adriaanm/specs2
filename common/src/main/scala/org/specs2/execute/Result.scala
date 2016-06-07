@@ -6,14 +6,11 @@ import control.Throwablex._
 import text.NotNullStrings._
 import main.Arguments
 import scalaz.Scalaz._
-import scalaz.{Foldable, Monoid}
-import Foldable._
+import scalaz.Monoid
 import collection.Seqx._
 import text.Message.concat
 import text.Sentences._
 import text.NotNullStrings._
-import ResultExecution._
-import reflect.ClassName._
 import scalaz._
 /**
  * The result of an execution, either:
@@ -348,7 +345,7 @@ case object FromJUnitAssertionError extends Details
 /** 
  * This class represents an exception occurring during an execution.
  */
-case class Error(m: String, t: Throwable) extends Result(m) with ResultStackTrace { outer =>
+case class Error(m: String, t: Throwable) extends Result(s"${t.getClass.getName}: $m") with ResultStackTrace { outer =>
   type SelfType = Error
 
   /** @return an exception created from the message and the stackTraceElements */

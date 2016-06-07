@@ -23,6 +23,7 @@ class ExecutorSpec extends script.Specification with Groups with ResultMatchers 
   + sequentially
   + with in-between steps
   + with a fatal execution error
+  + stopOnFail and sequential
 
   with a timeout $timeOut
 
@@ -119,7 +120,6 @@ class ExecutorSpec extends script.Specification with Groups with ResultMatchers 
     }
 
     eg := { env: Env =>
-      val tf = env.arguments.execute.timeFactor
 
       val fragments = Seq(
         example("fast1", ok("ok1")),
@@ -130,16 +130,28 @@ class ExecutorSpec extends script.Specification with Groups with ResultMatchers 
 
       messages.toList must_== Seq("ok1", "fatal")
     }
+
+    eg := { env: Env =>
+
+      val fragments = Seq(
+        example("e1", ko("ko1")),
+        example("e2", ok("ok2")))
+
+      val env1 = env.setArguments(Arguments.split("sequential stopOnFail"))
+      val results = execute(fragments, env1).map(_.status)
+
+      results must contain("x", "o")
+    }
   }
 
   def timeOut = { env: Env =>
     val timeFactor = env.arguments.execute.timeFactor
 
     val messages = new ListBuffer[String]
-    def verySlow      = { Thread.sleep(600 * timeFactor); messages.append("very slow"); success }
+    def verySlow      = { Thread.sleep(600 * timeFactor.toLong); messages.append("very slow"); success }
 
     val fragments = Seq(example("very slow", verySlow))
-    val env1 = env.setTimeout(100.millis * timeFactor)
+    val env1 = env.setTimeout(100.millis * timeFactor.toLong)
 
     execute(fragments, env1) must contain(beSkipped[Result]("timeout after "+100*timeFactor+" milliseconds"))
   }
@@ -154,14 +166,15 @@ class ExecutorSpec extends script.Specification with Groups with ResultMatchers 
     val messages = new ListBuffer[String]
 
     // this cannot be made lazy vals otherwise this will block on 'slow'
-    def ok(name: String)              = {                    messages.append(name); success }
-    def fast(timeFactor: Int)         = {                    messages.append("fast"); success }
-    def medium(timeFactor: Int)       = { Thread.sleep(10 * timeFactor);  messages.append("medium"); success }
+    def ok(name: String)              = { messages.append(name); success }
+    def ko(name: String)              = { messages.append(name); failure }
+    def fast(timeFactor: Int)         = { messages.append("fast"); success }
+    def medium(timeFactor: Int)       = { Thread.sleep(10 * timeFactor.toLong);  messages.append("medium"); success }
     def ex(s: String)                 = { messages.append(s); success }
-    def mediumFail(timeFactor: Int)   = { Thread.sleep(10 * timeFactor);  messages.append("medium"); failure }
-    def mediumSkipped(timeFactor: Int)= { Thread.sleep(10 * timeFactor);  messages.append("medium"); skipped }
-    def slow(timeFactor: Int)         = { Thread.sleep(200 * timeFactor); messages.append("slow");   success }
-    def verySlow(timeFactor: Int)     = { Thread.sleep(600 * timeFactor); messages.append("very slow"); success }
+    def mediumFail(timeFactor: Int)   = { Thread.sleep(10 * timeFactor.toLong);  messages.append("medium"); failure }
+    def mediumSkipped(timeFactor: Int)= { Thread.sleep(10 * timeFactor.toLong);  messages.append("medium"); skipped }
+    def slow(timeFactor: Int)         = { Thread.sleep(200 * timeFactor.toLong); messages.append("slow");   success }
+    def verySlow(timeFactor: Int)     = { Thread.sleep(600 * timeFactor.toLong); messages.append("very slow"); success }
     def step1                         = { messages.append("step");   success }
     def fatalStep                     = { messages.append("fatal");  if (true) throw new java.lang.Error("fatal error!"); success }
   }

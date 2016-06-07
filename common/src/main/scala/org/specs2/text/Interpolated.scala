@@ -3,7 +3,7 @@ package text
 
 import util.parsing.combinator._
 import Trim._
-import util.parsing.input.{CharSequenceReader, Reader}
+import util.parsing.input.{CharSequenceReader}
 
 /**
  * This class extracts interpolated expressions from an interpolated string, given the string content and the text
@@ -34,7 +34,7 @@ trait InterpolatedParsers extends JavaTokenParsers {
 
   def empty(p: Parser[String]) = p ^^ (_ => "")
 
-  lazy val noVariable: Parser[String] = ("[^${}]+".r).named("no variable")
+  lazy val noVariable: Parser[String] = s"[^$${}]+".r.named("no variable")
 
   lazy val interpolatedString: Parser[String] =
     interpolatedVariable |

@@ -2,8 +2,8 @@ package org.specs2
 package reporter
 
 import junit.framework.AssertionFailedError
-
-import scalaz.stream.{Process, Sink}
+import foldm._, stream._, FoldProcessM._
+import scalaz.stream.{Sink}
 import text.NotNullStrings._
 import scalaz.concurrent.Task
 import org.junit.runner.Description
@@ -13,9 +13,8 @@ import text.AnsiColors
 import execute._
 import org.junit.ComparisonFailure
 import main.Arguments
-import org.specs2.control.{Actions, Action, Throwablex}
+import control.{Actions, Action, Throwablex}
 import scalaz.stream.io
-import data.Fold
 
 /**
  * The JUnitPrinter sends notifications to JUnit's RunNotifier
@@ -33,14 +32,13 @@ trait JUnitPrinter extends Printer { outer =>
   /** description for the whole specification */
   def description: Description
 
-  def fold(env: Env, spec: SpecStructure) = Fold.fromSink(sink(spec, env))
+  def sink(env: Env, spec: SpecStructure) =
+    fromSink(scalazSink(spec, env))
 
-  def sink(spec: SpecStructure, env: Env): Sink[Task, Fragment] = {
-    val acquire = Task.now {
-      notifier.fireTestRunStarted(description); notifier
-    }
+  def scalazSink(spec: SpecStructure, env: Env): Sink[Task, Fragment] = {
+    val acquire = Task.now { notifier.fireTestRunStarted(description); notifier }
     val shutdown = (notifier: RunNotifier) => Task.now(notifier.fireTestRunFinished(new org.junit.runner.Result))
-    val step = (notifier: RunNotifier) => Task.now(notifyJUnit(env.arguments))
+    val step =     (notifier: RunNotifier) => Task.now(notifyJUnit(env.arguments))
 
     io.resource(acquire)(shutdown)(step)
   }

@@ -2,7 +2,6 @@ package org.specs2
 package control
 
 import io.FilePath
-import scalaz.std.anyVal._
 import scala.sys.process.ProcessLogger
 
 /**
@@ -55,8 +54,8 @@ object Executable {
       messages.clear
       f
     }
-    def err(s: => String) { messages.append(s+"\n") }
-    def out(s: => String) { messages.append(s+"\n") }
+    def err(s: => String) { messages.append(s+"\n"); () }
+    def out(s: => String) { messages.append(s+"\n"); () }
   }
 
 

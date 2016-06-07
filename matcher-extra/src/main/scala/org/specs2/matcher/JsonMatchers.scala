@@ -7,14 +7,9 @@ import org.specs2.execute._
 import org.specs2.json._
 import Json._
 import org.specs2.text.NotNullStrings._
-import control.Exceptions._
-import text.Quote._
 import text.NotNullStrings._
-import text.Regexes._
-import text.Trim._
 import json.Json._
 import util.matching.Regex
-import ValueChecks._
 import MatchersImplicits._
 import Results.negateWhen
 
@@ -70,9 +65,7 @@ trait JsonBaseMatchers extends Expectations with JsonMatchersImplicits { outer =
         case (Some(JSONObject(o)), Nil) => check(Expectable(JsonType.map(o))).toResult
         case (None,    q :: _)          => Failure(q.selector.name + " not found")
 
-        /**
-         * FIRST
-         */
+        // FIRST
         case (Some(JSONArray(list)), JsonQuery(First, selector) :: rest) =>
           selector.select(list) match {
             case Some(v: JSONType) => find(Some(v), rest)
@@ -87,9 +80,7 @@ trait JsonBaseMatchers extends Expectations with JsonMatchersImplicits { outer =
             case None                  => selectorNotFound(selector, map)
           }
 
-        /**
-         * DEEP
-         */
+        // DEEP
         case (Some(JSONArray(list)), JsonQuery(Deep, selector) :: rest) =>
           selector.select(list) match {
             case Some(v: JSONType) => find(Some(v), rest)

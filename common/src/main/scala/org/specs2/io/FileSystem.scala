@@ -4,7 +4,6 @@ package io
 import control._
 import ActionT._
 import scalaz.{std, syntax, stream, concurrent}
-import std.anyVal._
 import std.list._
 import syntax.all._
 import stream._
@@ -16,8 +15,6 @@ import java.net.URL
 import java.util.zip._
 import java.util.regex.Pattern.compile
 import java.util.regex.Matcher.quoteReplacement
-import FileReader._
-import org.specs2.text.Regexes._
 
 /**
  * Interface for the FileSystem where effects are denoted with the "Action" type
@@ -51,7 +48,7 @@ trait FileSystem extends FilePathReader {
 
   /** create a directory and its parent directories */
   def mkdirs(path: DirectoryPath): Action[Unit] =
-    Actions.safe(path.toFile.mkdirs)
+    Actions.safe(path.toFile.mkdirs).void
 
   /** create a the directory containing a file and its parent directories */
   def mkdirs(path: FilePath): Action[Unit] =
@@ -142,7 +139,7 @@ trait FileSystem extends FilePathReader {
       import java.nio.file._
       Files.copy(Paths.get(filePath.path),
                  Paths.get(dest.path).resolve(Paths.get(filePath.name.name)), StandardCopyOption.REPLACE_EXISTING)
-    }
+    }.void
 
   /** create a new file */
   def createFile(filePath: FilePath): Action[Boolean] =

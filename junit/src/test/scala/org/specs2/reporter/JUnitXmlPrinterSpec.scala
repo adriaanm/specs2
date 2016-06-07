@@ -2,7 +2,6 @@ package org.specs2
 package reporter
 
 import io._
-import org.specs2.specification.process.DefaultExecutor
 import specification.core._
 import scala.xml.NodeSeq
 import scalaz.concurrent.Task
@@ -92,7 +91,7 @@ is formatted for JUnit reporting tools.
   }
 
   object message {
-    def e1 = { (env: Env) => print(env)("t1" ^ br ^ "e2" ! anError) must \\("error", "message" -> anError.message) }
+    def e1 = { (env: Env) => print(env)("t1" ^ br ^ "e2" ! anError) must \\("error", "message" -> anError.exception.getMessage) }
     def e2 = { (env: Env) => print(env)("t1" ^ br ^ "e2" ! anError) must \\("error", "type" -> anError.exception.getClass.getName) }
     def e3 = { (env: Env) => print(env)("t1" ^ br ^ "e2" ! anError).toString must contain("JUnitXmlPrinterSpec.scala") }
     def e4 = { (env: Env) => print(env)("t1" ^ br ^ "e3" ! failure) must \\("failure", "message" -> failure.message) }

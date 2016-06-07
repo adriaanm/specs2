@@ -12,7 +12,6 @@ import syntax.all._
 import scalaz.std.vector._
 import scalaz.std.list._
 import scalaz.std.option._
-import scalaz.std.anyVal._
 import main.Arguments
 import reflect.Classes
 import reporter._, Printer._
@@ -59,6 +58,8 @@ object Runner {
         case ActionException(warnings, message, _) =>
           if (warnings.nonEmpty) print("Warnings:\n") >> print(warnings.mkString("", "\n", "\n")) else IO(()) >>
           message.traverseU(print).void
+
+        case _: InterruptedException => print("User cancellation. Bye")
 
         case other =>
           print("\n"+t.toString+"\n") >>

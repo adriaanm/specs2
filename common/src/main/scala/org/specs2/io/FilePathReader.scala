@@ -7,7 +7,6 @@ import text.MD5
 import scala.io.Codec
 import scalaz.concurrent._
 import scalaz.stream._
-import scalaz.std.anyVal._
 import Paths._
 
 /**
@@ -21,7 +20,7 @@ trait FilePathReader {
   def filePaths(dir: DirectoryPath, glob: String, verbose: Boolean): Action[IndexedSeq[FilePath]] = {
     filePathsProcess(dir)
       .filter(filterWithPattern(globToPattern(glob)))
-      .runLog.toAction
+      .runLog.toAction.map(_.toIndexedSeq)
   }
 
   /**
@@ -49,7 +48,7 @@ trait FilePathReader {
    * @return the files accessible recursively from a directory
    */
   def listFilePaths(directory: DirectoryPath): Action[IndexedSeq[FilePath]] =
-    filePathsProcess(directory).runLog.toAction
+    filePathsProcess(directory).runLog.toAction.map(_.toIndexedSeq)
 
   /**
    * @return the files directly accessible from a directory
